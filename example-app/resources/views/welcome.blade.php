@@ -28,7 +28,10 @@
                                    <input type="number" name="price" class="form-control">
                                </div>
                                <div class="col-3">
-                                   <button class="btn btn-primary">Add Fruit</button>
+                                   <button class="btn btn-primary">
+                                       <span class="spinner-grow spinner-grow-sm d-none btn-loader"></span>
+                                       Add Fruit
+                                   </button>
                                </div>
                            </div>
                        </form>
@@ -40,9 +43,11 @@
                                    <th>Fruit</th>
                                    <th>Price</th>
                                    <th>Photo</th>
+                                   <th>Control</th>
+                                   <th>Created At</th>
                                </tr>
                                </thead>
-                               <tbody>
+                               <tbody id="rows">
                                @foreach(\App\Models\Fruit::all() as $fruit)
 
                                    <tr>
@@ -50,10 +55,22 @@
                                        <th>{{$fruit->name}}</th>
                                        <th>{{$fruit->price}}</th>
                                        <th>
-                                           <a class="venobox" href="{{asset('storage/photo/'.$fruit->photo)}}">
+                                           <a class="venobox" href="{{asset('storage/photo/'.$fruit->photo)}}" >
                                                <img src="{{asset('storage/thumbnail/'.$fruit->photo)}}" width="50 " alt="image alt"/>
                                            </a>
                                        </th>
+                                       <th>
+                                           <div class="btn-group">
+                                               <button class="btn btn-sm btn-outline-primary" onclick="del({{$fruit->id}})">
+                                                   <i class="fas fa-trash-alt fa-fw"></i>
+                                               </button>
+                                               <button class="btn btn-sm btn-outline-primary" onclick="edit({{$fruit->id}})">
+                                                   <i class="fas fa-pen-alt fa-fw"></i>
+                                               </button>
+                                           </div>
+
+                                       </th>
+                                       <th>{{$fruit->created_at->diffForHumans()}}</th>
 
                                    </tr>
 
@@ -67,12 +84,38 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="editBox" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleBoxLabel">Edit</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" id="editForm" method="post">
+                        @csrf
 
+                        <img src="" id="editPhoto" class="w-50 d-block mx-auto" alt="">
+                        <input type="text" name="name" id="editName" class="form-control">
+                        <input type="text" name="price" id="editPrice" class="form-control">
+
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script src="{{asset('js/app.js')}}"></script>
 
     <script>
-
+        new VenoBox({
+            selector: '.venobox'
+        });
         // let fruitForm=$("#fruitForm");
         // fruitForm.on("submit",function (e) {
         //     e.preventDefault();
@@ -95,14 +138,38 @@
         //
         // });
 
+        let row=document.getElementById("rows");
+
+        let btnLoaderUi=document.querySelector('.btn-loader');
+
+
         let fruitForm=document.querySelector("#fruitForm");
         fruitForm.addEventListener("submit",function (e) {
             e.preventDefault();
-
+            btnLoaderUi.classList.toggle("d-none");
             let formdata=new FormData(this);
             axios.post(fruitForm.getAttribute("action"),formdata).then(function (response) {
                 if(response.data.status == "success")
                 {
+
+                    let info=response.data.info;
+                    let tr=document.createElement('tr');
+                    tr.classList.add("animate__animated","animate__slideInDown");
+                    tr.innerHTML=`
+                        <td>${info.id}</td>
+                        <td>${info.name}</td>
+                        <td>${info.price}</td>
+                        <td>
+                            <a class="venobox" href="${info.original_photo}">
+                                <img src="${info.thumbnail_photo}" width="50 " alt="image alt"/>
+                            </a>
+                        </td>
+                        <td>
+
+                        </td>
+                        <td>${info.time}</td>
+                        `;
+                    row.append(tr);
                     fruitForm.reset();
 
                 }else{
@@ -112,11 +179,27 @@
                         text: 'Wrong',
                     })
                 }
+                btnLoaderUi.classList.toggle("d-none");
             })
         })
-        new VenoBox({
-            selector: '.venobox'
-        });
+        function del(id) {
+            alert(id);
+        }
+        function edit(id) {
+
+            axios.get("fruit/"+id).then(function (response) {
+                console.log(response.data);
+                let info=response.data;
+                document.getElementById("editName").value=info.name;
+                document.getElementById("editPrice").value=info.price;
+                document.getElementById("editPhoto").src=info.original_photo;
+
+
+                let currentModal=new bootstrap.Modal(document.getElementById("editBox"));
+                currentModal.show();
+            })
+        }
+
     </script>
 </body>
 </html>

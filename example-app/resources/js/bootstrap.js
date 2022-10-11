@@ -2,6 +2,7 @@ window._ = require('lodash');
 
 try {
     require('bootstrap');
+    window.bootstrap=require('bootstrap');
     window.$=require('jquery');
     window.Swal=require('sweetalert2');
     window.VenoBox=require('venobox/dist/venobox.min');

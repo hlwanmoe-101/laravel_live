@@ -38,10 +38,10 @@ class FruitController extends Controller
      */
     public function store(StoreFruitRequest $request)
     {
-//        return $request;
         $validator=Validator::make($request->all(),[
             "name"=>"required|min:3",
-            "price"=>"required|integer|min:100"
+            "price"=>"required|integer|min:100",
+            "photo"=>"required|file|max:3000|mimes:jpg,png,jpeg"
         ]);
 
         if($validator->fails()){
@@ -62,6 +62,10 @@ class FruitController extends Controller
         $fruit->price=$request->price;
         $fruit->photo=$newName;
         $fruit->save();
+
+        $fruit->original_photo=asset('storage/photo/'.$fruit->photo);
+        $fruit->thumbnail_photo=asset('storage/thumbnail/'.$fruit->photo);
+        $fruit->time=$fruit->created_at->diffForHumans();
         return response()->json([
             "status"=>"success",
             "info"=> $fruit
@@ -76,7 +80,10 @@ class FruitController extends Controller
      */
     public function show(Fruit $fruit)
     {
-        //
+        $fruit->original_photo=asset('storage/photo/'.$fruit->photo);
+        $fruit->thumbnail_photo=asset('storage/thumbnail/'.$fruit->photo);
+        $fruit->time=$fruit->created_at->diffForHumans();
+        return $fruit;
     }
 
     /**
