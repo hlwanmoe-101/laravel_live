@@ -50,7 +50,7 @@
                                <tbody id="rows">
                                @foreach(\App\Models\Fruit::all() as $fruit)
 
-                                   <tr>
+                                   <tr id="row{{$fruit->id}}">
                                        <th>{{$fruit->id}}</th>
                                        <th>{{$fruit->name}}</th>
                                        <th>{{$fruit->price}}</th>
@@ -93,10 +93,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" id="editForm" method="post">
+                    <form action="" id="editForm" method="post" enctype="multipart/form-data">
                         @csrf
-
-                        <img src="" id="editPhoto" class="w-50 d-block mx-auto" alt="">
+                        @method('put')
+                        <img src="" id="editImg" class="w-50 d-block mx-auto" alt="">
+                        <button type="button" class="btn btn-outline-primary camera">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                        <input type="file" name="photo" id="editPhoto" class="form-control d-none">
                         <input type="text" name="name" id="editName" class="form-control">
                         <input type="text" name="price" id="editPrice" class="form-control">
 
@@ -104,7 +108,7 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button form="editForm" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
@@ -142,6 +146,7 @@
 
         let btnLoaderUi=document.querySelector('.btn-loader');
 
+        let editphoto=document.querySelector("#editPhoto");
 
         let fruitForm=document.querySelector("#fruitForm");
         fruitForm.addEventListener("submit",function (e) {
@@ -154,6 +159,7 @@
 
                     let info=response.data.info;
                     let tr=document.createElement('tr');
+                    tr.setAttribute("id","row"+info.id);
                     tr.classList.add("animate__animated","animate__slideInDown");
                     tr.innerHTML=`
                         <td>${info.id}</td>
@@ -165,7 +171,14 @@
                             </a>
                         </td>
                         <td>
-
+                            <div class="btn-group">
+                               <button class="btn btn-sm btn-outline-primary" onclick="del(${info.id})">
+                                   <i class="fas fa-trash-alt fa-fw"></i>
+                               </button>
+                               <button class="btn btn-sm btn-outline-primary" onclick="edit(${info.id})">
+                                   <i class="fas fa-pen-alt fa-fw"></i>
+                               </button>
+                            </div>
                         </td>
                         <td>${info.time}</td>
                         `;
@@ -183,22 +196,88 @@
             })
         })
         function del(id) {
-            alert(id);
+            // alert(id);
+            axios.delete("fruit/"+id).then(function (response) {
+                if(response.data.status="success"){
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Delete successfully'
+                    })
+                    document.getElementById("row"+id).remove();
+                }
+            })
+
         }
+        let currentModal=new bootstrap.Modal(document.getElementById("editBox"),{backdrop:"static"}) ;
         function edit(id) {
 
             axios.get("fruit/"+id).then(function (response) {
-                console.log(response.data);
+                // console.log(response.data);
                 let info=response.data;
                 document.getElementById("editName").value=info.name;
                 document.getElementById("editPrice").value=info.price;
-                document.getElementById("editPhoto").src=info.original_photo;
+                document.getElementById("editForm").setAttribute("data-id",id);
+                document.getElementById("editImg").src=info.original_photo;
 
 
-                let currentModal=new bootstrap.Modal(document.getElementById("editBox"));
                 currentModal.show();
             })
         }
+
+        document.getElementById("editForm").addEventListener("submit",function (e) {
+            e.preventDefault();
+            // console.log("edit");
+            let aa=new FormData(this);
+            // console.log(aa.get("name"));
+            let id=this.getAttribute("data-id");
+            axios.post("fruit/"+id,aa).then(function (response) {
+                console.log(response.data);
+                if(response.data.status=="success"){
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Update successfully'
+                    })
+                    currentModal.hide();
+                    let info=response.data.info;
+                    let tr=document.getElementById('row'+id);
+                    tr.classList.add("animate__animated","animate__slideInDown");
+                    tr.innerHTML=`
+                        <td>${info.id}</td>
+                        <td>${info.name}</td>
+                        <td>${info.price}</td>
+                        <td>
+                            <a class="venobox" href="${info.original_photo}">
+                                <img src="${info.thumbnail_photo}" width="50 " alt="image alt"/>
+                            </a>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                               <button class="btn btn-sm btn-outline-primary" onclick="del(${info.id})">
+                                   <i class="fas fa-trash-alt fa-fw"></i>
+                               </button>
+                               <button class="btn btn-sm btn-outline-primary" onclick="edit(${info.id})">
+                                   <i class="fas fa-pen-alt fa-fw"></i>
+                               </button>
+                            </div>
+                        </td>
+                        <td>${info.time}</td>
+                        `;
+                }
+
+            })
+
+        })
+        document.querySelector('.camera').addEventListener('click',function () {
+            editphoto.click();
+        })
+        editphoto.addEventListener('change',function () {
+            let currentPhoto=editphoto.files[0];
+            filereader=new FileReader();
+            filereader.onload=function (e) {
+                document.getElementById('editImg').src=e.target.result;
+            }
+            filereader.readAsDataURL(currentPhoto);
+        })
 
     </script>
 </body>

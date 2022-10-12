@@ -5,6 +5,7 @@ try {
     window.bootstrap=require('bootstrap');
     window.$=require('jquery');
     window.Swal=require('sweetalert2');
+    window.Toast=require('sweetalert2');
     window.VenoBox=require('venobox/dist/venobox.min');
 } catch (e) {}
 

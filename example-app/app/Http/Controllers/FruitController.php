@@ -106,7 +106,40 @@ class FruitController extends Controller
      */
     public function update(UpdateFruitRequest $request, Fruit $fruit)
     {
-        //
+        $validator=Validator::make($request->all(),[
+            "name"=>"required|min:3",
+            "price"=>"required|integer|min:100",
+            "photo"=>"nullable|file|max:3000|mimes:jpg,png,jpeg"
+        ]);
+        if($validator->fails()){
+            return response()->json([
+                "status"=>"fail",
+                "error"=> $validator->errors()
+            ]);
+        }
+
+        if($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $newName = uniqid() . "_photo." . $photo->extension();
+            $photo->StoreAs("public/photo", $newName);
+            $img = Image::make($photo);
+            $img->fit(300, 300)->save("storage/thumbnail/" . $newName, 80);
+        }
+
+        $fruit->name=$request->name;
+        $fruit->price=$request->price;
+        if($request->hasfile('photo')) {
+            $fruit->photo = $newName;
+        }
+        $fruit->save();
+
+        $fruit->original_photo=asset('storage/photo/'.$fruit->photo);
+        $fruit->thumbnail_photo=asset('storage/thumbnail/'.$fruit->photo);
+        $fruit->time=$fruit->created_at->diffForHumans();
+        return response()->json([
+            "status"=>"success",
+            "info"=> $fruit
+        ]);
     }
 
     /**
@@ -117,6 +150,11 @@ class FruitController extends Controller
      */
     public function destroy(Fruit $fruit)
     {
-        //
+        $fruits= new Fruit();
+        $fruit->delete();
+        response()->json([
+            "status"=>"success",
+            "info"=> $fruit
+        ]);
     }
 }
