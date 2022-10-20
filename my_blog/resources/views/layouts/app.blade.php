@@ -32,10 +32,25 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
+                    @auth
                     <ul class="navbar-nav me-auto">
-
+                        <li class="nav-item">
+                            <a class="nav-link {{request()->url()==route('home')? 'active':""}}" aria-current="page" href="{{route('home')}}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{request()->url()==route('category.index')? 'active':""}}" aria-current="page" href="{{route('category.index')}}">Category List</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{request()->url()==route('category.create')? 'active':""}}" aria-current="page" href="{{route('category.create')}}">Created Category</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{request()->url()==route('post.index')? 'active':""}}" aria-current="page" href="{{route('post.index')}}">Post List</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{request()->url()==route('post.create')? 'active':""}}" aria-current="page" href="{{route('post.create')}}">Created Post</a>
+                        </li>
                     </ul>
-
+                    @endauth
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
                         <!-- Authentication Links -->

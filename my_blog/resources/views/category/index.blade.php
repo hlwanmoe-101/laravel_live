@@ -7,7 +7,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        Create Lists
+                        Crategory Lists
                     </div>
                     <div class="card-body">
                         <div class="mb-2">
@@ -42,10 +42,8 @@
                                                         <i class="fa fa-trash-alt fa-fw"></i>
                                                     </button>
                                                 </form>
-                                                <a href="{{route('category.edit',$category->id)}}">
-                                                    <button class="btn btn-sm btn-outline-warning">
-                                                        <i class="fa fa-pen-alt fa-fw"></i>
-                                                    </button>
+                                                <a href="{{route('category.edit',$category->id)}}" class="btn btn-sm btn-outline-warning">
+                                                       <i class="fa fa-pen-alt fa-fw"></i>
                                                 </a>
                                             </td>
                                             <td>
