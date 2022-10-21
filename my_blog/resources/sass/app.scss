@@ -7,3 +7,15 @@
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 @import "~@fortawesome/fontawesome-free/css/all.min.css";
+@import "~venobox/dist/venobox.min.css";
+@import "~sweetalert2/dist/sweetalert2.min.css";
+.img-del-btn{
+    margin-top: -55px;
+}
+.uploaderUi{
+    width: 100px;
+    height: 100px;
+}
+.list-thumbnail{
+    margin-left: -20px;
+}

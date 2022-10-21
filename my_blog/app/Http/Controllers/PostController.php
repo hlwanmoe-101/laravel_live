@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Models\Photo;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 
 class PostController extends Controller
 {
@@ -46,10 +49,13 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
+
         $request->validate([
             'title'=>'required|min:5|unique:posts,title',
             'category'=>'required|integer|exists:categories,id',
-            'description'=>'required|min:20'
+            'description'=>'required|min:20',
+            'photo'=>'required',
+            'photo.*'=>'file|max:3000|mimes:jpg,png,jpeg'
         ]);
 
 
@@ -63,6 +69,32 @@ class PostController extends Controller
         $post->user_id=Auth::id();
         $post->is_publish=true;
         $post->save();
+
+        //auto make folder
+        if(!Storage::directories("public/thumbnail")){
+            Storage::makeDirectory("public/thumbnail");
+        }
+        if($request->hasFile('photo')){
+            foreach ($request->file('photo') as $photo){
+                //save in storage
+                $newName=uniqid()."_photo.".$photo->extension();
+                $photo->storeAs("public/photo/",$newName);
+                //reduce size
+                $img=Image::make($photo);
+                $img->fit(200,200);
+                $img->save("storage/thumbnail/".$newName);
+
+                //save in db
+                $photo=new Photo();
+                $photo->name=$newName;
+                $photo->post_id=$post->id;
+                $photo->user_id=Auth::id();
+                $photo->save();
+            }
+
+        }
+
+
 
         return redirect()->route('post.index')->with("status","Create Successfully");
     }
@@ -121,6 +153,13 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        foreach ($post->photos as $photo){
+            //file delete
+            Storage::delete('public/photo/'.$photo->name);
+            Storage::delete('public/thumbnail/'.$photo->name);
+        }
+        //db record delete hasmany
+        $post->photos()->delete();
         $post->delete();
         return redirect()->back()->with("status","Delete Successfully");
     }

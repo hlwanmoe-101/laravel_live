@@ -10,7 +10,7 @@
                         Create Post
                     </div>
                     <div class="card-body">
-                        <form action="{{route('post.store')}}" method="post">
+                        <form action="{{route('post.store')}}" method="post" enctype="multipart/form-data">
                             @csrf
 
 
@@ -33,6 +33,13 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
+                                    <label for="photo">Photo Upload</label>
+                                    <input type="file" name="photo[]" multiple value="{{old("photo")}}" class="form-control @error('photo') is-invalid @enderror">
+                                    @error('photo')
+                                    <p class="small text-danger">{{$message}}</p>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
                                     <label for="title">Description</label>
                                     <textarea type="text" rows="10" name="description" class="form-control @error('description') is-invalid @enderror">{{old('description')}}</textarea>
                                     @error('description')
@@ -49,7 +56,15 @@
 
 
                         </form>
-
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 {{--                        <div class="text-center">--}}
 {{--                            <a href="{{route('category.index')}}" class="btn btn-primary">Category Lists</a>--}}
 {{--                        </div>--}}

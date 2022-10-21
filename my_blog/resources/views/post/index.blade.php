@@ -29,14 +29,15 @@
                                 </div>
                             </form>
                         </div>
-                        @if(session("status"))
-                            <p class="alert alert-success">{{session("status")}}</p>
-                        @endif
+{{--                        @if(session("status"))--}}
+{{--                            <p class="alert alert-success">{{session("status")}}</p>--}}
+{{--                        @endif--}}
                         <table class="table table-hover align-middle">
                             <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Title</th>
+                                <th>Photo</th>
                                 <th>Owner</th>
                                 <th>Is Publish</th>
                                 <th>Category</th>
@@ -50,6 +51,15 @@
                                 <tr>
                                     <td>{{$post->id}}</td>
                                     <td class="small w-25">{{Str::words($post->title,10)}}</td>
+                                    <td>
+                                        @forelse($post->photos()->latest('id')->limit(3)->get() as $photo)
+                                            <a class="venobox" data-gall="img{{$post->id}}" href="{{asset('storage/photo/'.$photo->name)}}">
+                                                <img src="{{asset('storage/thumbnail/'.$photo->name)}}" class="rounded-circle border border-white shadow-sm list-thumbnail" height="30" alt="">
+                                            </a>
+                                            @empty
+                                            No Photo
+                                        @endforelse
+                                    </td>
                                     <td>
                                         {{$post->user->name}}
                                     </td>
