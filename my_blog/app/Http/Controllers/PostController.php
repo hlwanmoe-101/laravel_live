@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Models\Photo;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
@@ -20,11 +21,12 @@ class PostController extends Controller
      */
     public function index()
     {
-
-            $posts=Post::when(isset(request()->search),function ($query){
-                $search=request()->search;
-                $query->where("title","LIKE","%$search%")->orwhere("description","LIKE","%$search%");
-            })->latest('id')->paginate(5);
+//
+//            $posts=Post::when(isset(request()->search),function ($query){
+//                $search=request()->search;
+//                $query->where("title","LIKE","%$search%")->orwhere("description","LIKE","%$search%");
+//            })->latest('id')->paginate(5);
+        $posts=Post::search()->latest('id')->paginate(5);
 
 
 
@@ -54,47 +56,61 @@ class PostController extends Controller
             'title'=>'required|min:5|unique:posts,title',
             'category'=>'required|integer|exists:categories,id',
             'description'=>'required|min:20',
-            'photo'=>'required',
-            'photo.*'=>'file|max:3000|mimes:jpg,png,jpeg'
+            'photos'=>'required',
+            'photos.*'=>'file|max:3000|mimes:jpg,png,jpeg',
+            'tags'=>'required',
+            'tags.*'=>'integer|exists:tags,id'
         ]);
 
+//        DB::transaction(function () use($request){
 
+        DB::beginTransaction();
+        try{
+            $post=new Post();
+            $post->title=$request->title;
+//        $post->slug=Str::slug($request->title);
+            $post->slug=$request->title;
+            $post->description=$request->description;
+            $post->excerpt=$request->description;
+            $post->category_id=$request->category;
+            $post->user_id=Auth::id();
+            $post->is_publish=true;
+            $post->save();
 
-        $post=new Post();
-        $post->title=$request->title;
-        $post->slug=Str::slug($request->title);
-        $post->description=$request->description;
-        $post->excerpt=Str::words($request->description,20);
-        $post->category_id=$request->category;
-        $post->user_id=Auth::id();
-        $post->is_publish=true;
-        $post->save();
-
-        //auto make folder
-        if(!Storage::directories("public/thumbnail")){
-            Storage::makeDirectory("public/thumbnail");
-        }
-        if($request->hasFile('photo')){
-            foreach ($request->file('photo') as $photo){
-                //save in storage
-                $newName=uniqid()."_photo.".$photo->extension();
-                $photo->storeAs("public/photo/",$newName);
-                //reduce size
-                $img=Image::make($photo);
-                $img->fit(200,200);
-                $img->save("storage/thumbnail/".$newName);
-
-                //save in db
-                $photo=new Photo();
-                $photo->name=$newName;
-                $photo->post_id=$post->id;
-                $photo->user_id=Auth::id();
-                $photo->save();
+            //auto make folder
+            if(!Storage::directories("public/thumbnail")){
+                Storage::makeDirectory("public/thumbnail");
             }
+            if($request->hasFile('photos')){
+                foreach ($request->file('photos') as $photo){
+                    //save in storage
+                    $newName=uniqid()."_photo.".$photo->extension();
+                    $photo->storeAs("public/photo/",$newName);
+                    //reduce size
+                    $img=Image::make($photo);
+                    $img->fit(200,200);
+                    $img->save("storage/thumbnail/".$newName);
 
+                    //save in db
+                    $photo=new Photo();
+                    $photo->name=$newName;
+                    $photo->post_id=$post->id;
+                    $photo->user_id=Auth::id();
+                    $photo->save();
+                }
+
+            }
+            //tags save many to may
+            $post->tags()->attach($request->tags);
+
+            DB::commit();
+
+        }catch (\Exception $e){
+            DB::rollBack();
+            throw $e;
         }
 
-
+//        });
 
         return redirect()->route('post.index')->with("status","Create Successfully");
     }
@@ -141,6 +157,9 @@ class PostController extends Controller
         $post->excerpt=Str::words($request->description,20);
         $post->category_id=$request->category;
         $post->update();
+        //tags update
+        $post->tags()->delete();
+        $post->tags()->attach($request->tags);
         return redirect()->route('post.index')->with("status","Update Successfully");
 
     }
@@ -160,6 +179,8 @@ class PostController extends Controller
         }
         //db record delete hasmany
         $post->photos()->delete();
+        //tags from pivot
+        $post->tags()->delete();
         $post->delete();
         return redirect()->back()->with("status","Delete Successfully");
     }

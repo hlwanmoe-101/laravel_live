@@ -32,16 +32,41 @@
                                 <p class="small text-danger">{{$message}}</p>
                                 @enderror
                             </div>
+
+
                             <div class="mb-3">
-                                <label for="photo">Photo</label>
+                                <label for="">Tags</label>
+                                <br>
+{{--                                @json(old('tags'))--}}
+                                @foreach(\App\Models\Tag::all() as $tag)
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" value="{{$tag->id}}" form="postUpdateForm" name="tags[]" id="flexCheckDefault{{$tag->id}}" {{ in_array($tag->id,old('tags',$post->tags->pluck('id')->toArray()))? 'checked': '' }} >
+                                        <label class="form-check-label" for="flexCheckDefault{{$tag->id}}">
+                                            {{$tag->title}}
+                                        </label>
+                                    </div>
+                                @endforeach
+                                @error('tags')
+                                <p class="small text-danger">{{$message}}</p>
+                                @enderror
+                                @error('tags.*')
+                                <p class="small text-danger">{{$message}}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="photos">Photo</label>
                                 <div class="border rounded p-3 d-flex overflow-scroll">
                                     <form action="{{route('photo.store')}}" class="d-none" id="photoUploadForm" method="post" enctype="multipart/form-data">
                                         @csrf
                                         <input type="hidden" value="{{$post->id}}" name="postId">
-                                        <label for="photo">Photo Upload</label>
-                                        <input type="file" name="photo[]" multiple value="{{old("photo")}}" id="photoInput" class="form-control @error('photo') is-invalid @enderror">
+                                        <label for="photos">Photo Upload</label>
+                                        <input type="file" name="photos[]" multiple value="{{old("photos")}}" id="photoInput" class="form-control @error('photos') is-invalid @enderror">
                                         <button class="btn btn-primary btn-sm">Upload</button>
-                                        @error('photo')
+                                        @error('photos')
+                                        <p class="small text-danger">{{$message}}</p>
+                                        @enderror
+                                        @error('photos.*')
                                         <p class="small text-danger">{{$message}}</p>
                                         @enderror
                                     </form>

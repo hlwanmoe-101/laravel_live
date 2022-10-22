@@ -41,6 +41,7 @@
                                 <th>Owner</th>
                                 <th>Is Publish</th>
                                 <th>Category</th>
+                                <th>Tags</th>
 {{--                                <th>Description</th>--}}
                                 <th>Control</th>
                                 <th>Created At</th>
@@ -50,9 +51,14 @@
                             @forelse($posts as $post)
                                 <tr>
                                     <td>{{$post->id}}</td>
-                                    <td class="small w-25">{{Str::words($post->title,10)}}</td>
+{{--                                    <td class="small w-25">{{Str::words($post->title,10)}}</td>--}}
+                                    <td class="small w-25">{{$post->short_title}}</td>
                                     <td>
-                                        @forelse($post->photos()->latest('id')->limit(3)->get() as $photo)
+{{--                                        @forelse($post->photos()->latest('id')->limit(3)->get() as $photo)--}}
+                                        @forelse($post->photos as $key=>$photo)
+                                            @if($key==3)
+                                                @break
+                                                @endif
                                             <a class="venobox" data-gall="img{{$post->id}}" href="{{asset('storage/photo/'.$photo->name)}}">
                                                 <img src="{{asset('storage/thumbnail/'.$photo->name)}}" class="rounded-circle border border-white shadow-sm list-thumbnail" height="30" alt="">
                                             </a>
@@ -74,6 +80,16 @@
                                     </td>
                                     <td>
                                         {{$post->category->title}}
+                                    </td>
+                                    <td>
+                                        @foreach($post->tags as $tag)
+
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-hashtag"></i>
+                                                {{$tag->title}}
+                                            </span>
+
+                                            @endforeach
                                     </td>
 {{--                                    <td class="small">--}}
 {{--                                        {{\Illuminate\Support\Str::words($post->description,20)}}--}}
@@ -97,16 +113,17 @@
                                         </form>
                                     </td>
                                     <td>
-                                        <i class="fa fa-calendar"></i>
-                                        <small>{{$post->created_at->format("d-m-Y")}}</small>
-                                        <br>
-                                        <i class="fa fa-clock-four"></i>
-                                        <small>{{$post->created_at->format("h:m A")}}</small>
+{{--                                        <i class="fa fa-calendar"></i>--}}
+{{--                                        <small>{{$post->created_at->format("d-m-Y")}}</small>--}}
+{{--                                        <br>--}}
+{{--                                        <i class="fa fa-clock-four"></i>--}}
+{{--                                        <small>{{$post->created_at->format("h:m A")}}</small>--}}
+                                        {!! $post->show_time !!}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center"> There is no data</td>
+                                    <td colspan="8" class="text-center"> There is no data</td>
                                 </tr>
                             @endforelse
                             </tbody>
