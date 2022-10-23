@@ -41,7 +41,9 @@ class PostPolicy
      */
     public function create(User $user)
     {
-        //
+//        $allowId=[1,2];
+//        return in_array($user->id,$allowId);
+        return true;
     }
 
     /**
@@ -53,7 +55,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post)
     {
-        //
+        return $user->id==$post->user_id;
     }
 
     /**
@@ -65,7 +67,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post)
     {
-        //
+        return $user->id==$post->user_id;
     }
 
     /**

@@ -28,6 +28,7 @@ class Post extends Model
 //        return Str::words($value,10);
 //    }
 
+//   accessor
     public function getShortTitleAttribute(){
         return Str::words($this->title,10);
     }

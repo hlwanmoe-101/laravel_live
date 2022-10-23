@@ -99,12 +99,16 @@
                                             <a href="{{route('post.show',$post->id)}}" class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-info-circle"></i>
                                             </a>
+                                            @can('update',$post)
                                             <button class="btn btn-sm btn-outline-primary" form="post-delete{{$post->id}}">
                                                 <i class="fa fa-trash-alt fa-fw"></i>
                                             </button>
+                                            @endcan
+                                            @can('delete',$post)
                                             <a href="{{route('post.edit',$post->id)}}" class="btn btn-sm btn-outline-primary">
                                                <i class="fa fa-pen-alt fa-fw"></i>
                                             </a>
+                                            @endcan
                                         </div>
                                         <form action="{{route('post.destroy',$post->id)}}" id="post-delete{{$post->id}}" class="d-inline-block" method="post">
                                             @csrf

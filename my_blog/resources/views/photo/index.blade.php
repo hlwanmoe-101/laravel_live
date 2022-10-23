@@ -28,6 +28,7 @@
                                 No Photo
                             @endforelse
                         </div>
+                        {{$categories}}
                     </div>
                 </div>
             </div>

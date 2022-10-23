@@ -8,6 +8,7 @@ use App\Models\Photo;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
@@ -21,7 +22,7 @@ class PostController extends Controller
      */
     public function index()
     {
-//
+
 //            $posts=Post::when(isset(request()->search),function ($query){
 //                $search=request()->search;
 //                $query->where("title","LIKE","%$search%")->orwhere("description","LIKE","%$search%");
@@ -51,16 +52,16 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-
-        $request->validate([
-            'title'=>'required|min:5|unique:posts,title',
-            'category'=>'required|integer|exists:categories,id',
-            'description'=>'required|min:20',
-            'photos'=>'required',
-            'photos.*'=>'file|max:3000|mimes:jpg,png,jpeg',
-            'tags'=>'required',
-            'tags.*'=>'integer|exists:tags,id'
-        ]);
+//        Gate::authorize('create',$request->post);
+//        $request->validate([
+//            'title'=>'required|min:5|unique:posts,title',
+//            'category'=>'required|integer|exists:categories,id',
+//            'description'=>'required|min:20',
+//            'photos'=>'required',
+//            'photos.*'=>'file|max:3000|mimes:jpg,png,jpeg',
+//            'tags'=>'required',
+//            'tags.*'=>'integer|exists:tags,id'
+//        ]);
 
 //        DB::transaction(function () use($request){
 
@@ -134,7 +135,23 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
+//        if(Gate::allows('update_post',$post)){
+//            return view('post.edit',compact("post"));
+//        }else{
+//            return abort('403');
+//        }
+
+//        if(Gate::denies('update_post',$post)){
+//            return abort('403');
+//        }
+//        return view('post.edit',compact("post"));
+
+//        Gate::authorize('update_post',$post);
+//        return view('post.edit',compact("post"));
+
+        Gate::authorize('update',$post);
         return view('post.edit',compact("post"));
+
     }
 
     /**
@@ -146,11 +163,14 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        $request->validate([
-            'title'=>"required|min:5|unique:posts,title,$post->id",
-            'category'=>'required|integer|exists:categories,id',
-            'description'=>'required|min:20'
-        ]);
+//        Gate::authorize('update',$post);
+//        $request->validate([
+//            'title'=>"required|min:5|unique:posts,title,$post->id",
+//            'category'=>'required|integer|exists:categories,id',
+//            'description'=>'required|min:20',
+//            'tags'=>'required',
+//            'tags.*'=>'integer|exists:tags,id'
+//        ]);
         $post->title=$request->title;
         $post->slug=Str::slug($request->title);
         $post->description=$request->description;
@@ -158,7 +178,8 @@ class PostController extends Controller
         $post->category_id=$request->category;
         $post->update();
         //tags update
-        $post->tags()->delete();
+//        return $post->tags;
+        $post->tags()->detach();
         $post->tags()->attach($request->tags);
         return redirect()->route('post.index')->with("status","Update Successfully");
 
@@ -172,6 +193,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        Gate::authorize('delete',$post);
+
         foreach ($post->photos as $photo){
             //file delete
             Storage::delete('public/photo/'.$photo->name);
@@ -180,7 +203,7 @@ class PostController extends Controller
         //db record delete hasmany
         $post->photos()->delete();
         //tags from pivot
-        $post->tags()->delete();
+        $post->tags()->detach();
         $post->delete();
         return redirect()->back()->with("status","Delete Successfully");
     }

@@ -13,14 +13,14 @@
                         <form action="{{route('post.store')}}" method="post" enctype="multipart/form-data">
                             @csrf
 
-
-                                <div class="mb-3">
-                                    <label for="title">Post Title</label>
-                                    <input type="text" name="title" value="{{old('title')}}" class="form-control @error('title') is-invalid @enderror">
-                                    @error('title')
-                                     <p class="small text-danger">{{$message}}</p>
-                                    @enderror
-                                </div>
+                            <x-input input-title="Post Title" name="title"></x-input>
+{{--                                <div class="mb-3">--}}
+{{--                                    <label for="title">Post Title</label>--}}
+{{--                                    <input type="text" name="title" value="{{old('title')}}" class="form-control @error('title') is-invalid @enderror">--}}
+{{--                                    @error('title')--}}
+{{--                                     <p class="small text-danger">{{$message}}</p>--}}
+{{--                                    @enderror--}}
+{{--                                </div>--}}
                                 <div class="mb-3">
                                     <label for="category">Category</label>
                                     <select name="category" class="form-select @error('category') is-invalid @enderror">

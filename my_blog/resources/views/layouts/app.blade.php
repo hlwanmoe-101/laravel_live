@@ -35,22 +35,40 @@
                     @auth
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link {{request()->url()==route('home')? 'active':""}}" aria-current="page" href="{{route('home')}}">Home</a>
+                            <x-nav-link route-name="{{route('home')}}">
+                                Home
+                            </x-nav-link>
+{{--                            <a class="nav-link {{request()->url()==route('home')? 'active':""}}" aria-current="page" href="{{route('home')}}">Home</a>--}}
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{request()->url()==route('category.index')? 'active':""}}" aria-current="page" href="{{route('category.index')}}">Category List</a>
+                            <x-nav-link route-name="{{route('category.index')}}">
+                                Category List
+                            </x-nav-link>
+{{--                            <a class="nav-link {{request()->url()==route('category.index')? 'active':""}}" aria-current="page" href="{{route('category.index')}}">Category List</a>--}}
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{request()->url()==route('category.create')? 'active':""}}" aria-current="page" href="{{route('category.create')}}">Created Category</a>
+                            <x-nav-link route-name="{{route('category.create')}}">
+                                Create Category
+                            </x-nav-link>
+{{--                            <a class="nav-link {{request()->url()==route('category.create')? 'active':""}}" aria-current="page" href="{{route('category.create')}}">Created Category</a>--}}
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{request()->url()==route('post.index')? 'active':""}}" aria-current="page" href="{{route('post.index')}}">Post List</a>
+                            <x-nav-link route-name="{{route('post.index')}}">
+                                Post List
+                            </x-nav-link>
+{{--                            <a class="nav-link {{request()->url()==route('post.index')? 'active':""}}" aria-current="page" href="{{route('post.index')}}">Post List</a>--}}
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{request()->url()==route('post.create')? 'active':""}}" aria-current="page" href="{{route('post.create')}}">Created Post</a>
+                            <x-nav-link route-name="{{route('post.create')}}">
+                                Post Create
+                            </x-nav-link>
+{{--                            <a class="nav-link {{request()->url()==route('post.create')? 'active':""}}" aria-current="page" href="{{route('post.create')}}">Created Post</a>--}}
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{request()->url()==route('photo.index')? 'active':""}}" aria-current="page" href="{{route('photo.index')}}">My Photos</a>
+                            <x-nav-link route-name="{{route('photo.index')}}">
+                                My Photo
+                            </x-nav-link>
+{{--                            <a class="nav-link {{request()->url()==route('photo.index')? 'active':""}}" aria-current="page" href="{{route('photo.index')}}">My Photos</a>--}}
                         </li>
                     </ul>
                     @endauth

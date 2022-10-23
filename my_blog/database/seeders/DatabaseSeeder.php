@@ -30,8 +30,8 @@ class DatabaseSeeder extends Seeder
 
         User::factory(1)->create();
         Category::factory(3)->create();
-        Post::factory(3)->create();
-        Tag::factory(3)->create();
+        Post::factory(2)->create();
+        Tag::factory(2)->create();
 
         Photo::create([
             'name'=>"AAAAAA",
@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Post::all()->each(function ($post){
-            $tagIds=Tag::inRandomOrder()->limit(rand(1,3))->get()->pluck('id');
+            $tagIds=Tag::inRandomOrder()->limit(rand(1,2))->get()->pluck('id');
             $post->tags()->attach($tagIds);
         });
 
