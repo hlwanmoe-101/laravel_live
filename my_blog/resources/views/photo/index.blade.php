@@ -28,7 +28,7 @@
                                 No Photo
                             @endforelse
                         </div>
-                        {{$categories}}
+{{--                        {{$categories}}--}}
                     </div>
                 </div>
             </div>

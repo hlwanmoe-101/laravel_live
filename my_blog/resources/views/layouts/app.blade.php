@@ -40,6 +40,7 @@
                             </x-nav-link>
 {{--                            <a class="nav-link {{request()->url()==route('home')? 'active':""}}" aria-current="page" href="{{route('home')}}">Home</a>--}}
                         </li>
+                        @onlyAdmin
                         <li class="nav-item">
                             <x-nav-link route-name="{{route('category.index')}}">
                                 Category List
@@ -52,6 +53,7 @@
                             </x-nav-link>
 {{--                            <a class="nav-link {{request()->url()==route('category.create')? 'active':""}}" aria-current="page" href="{{route('category.create')}}">Created Category</a>--}}
                         </li>
+                        @endonlyAdmin
                         <li class="nav-item">
                             <x-nav-link route-name="{{route('post.index')}}">
                                 Post List

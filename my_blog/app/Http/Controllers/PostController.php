@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Info;
 use App\Models\Photo;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
@@ -82,25 +83,28 @@ class PostController extends Controller
             if(!Storage::directories("public/thumbnail")){
                 Storage::makeDirectory("public/thumbnail");
             }
-            if($request->hasFile('photos')){
-                foreach ($request->file('photos') as $photo){
-                    //save in storage
-                    $newName=uniqid()."_photo.".$photo->extension();
-                    $photo->storeAs("public/photo/",$newName);
-                    //reduce size
-                    $img=Image::make($photo);
-                    $img->fit(200,200);
-                    $img->save("storage/thumbnail/".$newName);
 
-                    //save in db
-                    $photo=new Photo();
-                    $photo->name=$newName;
-                    $photo->post_id=$post->id;
-                    $photo->user_id=Auth::id();
-                    $photo->save();
-                }
+            Info::savePhoto($post->id);
 
-            }
+//            if($request->hasFile('photos')){
+//                foreach ($request->file('photos') as $photo){
+//                    //save in storage
+//                    $newName=uniqid()."_photo.".$photo->extension();
+//                    $photo->storeAs("public/photo/",$newName);
+//                    //reduce size
+//                    $img=Image::make($photo);
+//                    $img->fit(200,200);
+//                    $img->save("storage/thumbnail/".$newName);
+//
+//                    //save in db
+//                    $photo=new Photo();
+//                    $photo->name=$newName;
+//                    $photo->post_id=$post->id;
+//                    $photo->user_id=Auth::id();
+//                    $photo->save();
+//                }
+//
+//            }
             //tags save many to may
             $post->tags()->attach($request->tags);
 

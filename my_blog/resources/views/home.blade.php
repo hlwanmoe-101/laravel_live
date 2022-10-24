@@ -14,7 +14,9 @@
                         </div>
                     @endif
 
+                    @hma
                     {{$my_name}}
+                    {{$cat}}
                 </div>
             </div>
         </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePhotoRequest;
 use App\Http\Requests\UpdatePhotoRequest;
+use App\Info;
 use App\Models\Photo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -45,26 +46,27 @@ class PhotoController extends Controller
             'photos'=>'required',
             'photos.*'=>'file|max:3000|mimes:jpg,png,jpeg'
         ]);
+        Info::savePhoto($request->postId);
 
-        if($request->hasFile('photos')){
-            foreach ($request->file('photos') as $photo){
-                //save in storage
-                $newName=uniqid()."_photo.".$photo->extension();
-                $photo->storeAs("public/photo/",$newName);
-                //reduce size
-                $img=Image::make($photo);
-                $img->fit(200,200);
-                $img->save("storage/thumbnail/".$newName);
-
-                //save in db
-                $photo=new Photo();
-                $photo->name=$newName;
-                $photo->post_id=$request->postId;
-                $photo->user_id=Auth::id();
-                $photo->save();
-            }
-
-        }
+//        if($request->hasFile('photos')){
+//            foreach ($request->file('photos') as $photo){
+//                //save in storage
+//                $newName=uniqid()."_photo.".$photo->extension();
+//                $photo->storeAs("public/photo/",$newName);
+//                //reduce size
+//                $img=Image::make($photo);
+//                $img->fit(200,200);
+//                $img->save("storage/thumbnail/".$newName);
+//
+//                //save in db
+//                $photo=new Photo();
+//                $photo->name=$newName;
+//                $photo->post_id=$request->postId;
+//                $photo->user_id=Auth::id();
+//                $photo->save();
+//            }
+//
+//        }
         return redirect()->back()->with("status","Photo added");
     }
 
